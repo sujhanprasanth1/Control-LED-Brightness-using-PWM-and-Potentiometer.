@@ -43,44 +43,46 @@ Generate the .bin file using:
 
 ## Code
 
-#include <LPC17xx.h>
+    #include <LPC17xx.h>
 
-void PWM_Init(void) {
-    LPC_SC->PCONP |= (1 << 6);          // Power up PWM1
-    LPC_PINCON->PINSEL4 |= (1 << 0);    // P2.0 as PWM1.1
-    LPC_PWM1->PR = 0;                   // No prescale
-    LPC_PWM1->MR0 = 1000;               // PWM period
-    LPC_PWM1->MR1 = 0;                  // Initial duty cycle
-    LPC_PWM1->MCR = (1 << 1);           // Reset on MR0
-    LPC_PWM1->LER = (1 << 0) | (1 << 1);// Load MR0 and MR1
-    LPC_PWM1->PCR = (1 << 9);           // Enable PWM1.1 output
-    LPC_PWM1->TCR = (1 << 0) | (1 << 3);// Enable counter + PWM
-}
+    void PWM_Init(void) {
+        LPC_SC->PCONP |= (1 << 6);          // Power up PWM1
+        LPC_PINCON->PINSEL4 |= (1 << 0);    // P2.0 as PWM1.1
+        LPC_PWM1->PR = 0;                   // No prescale
+        LPC_PWM1->MR0 = 1000;               // PWM period
+        LPC_PWM1->MR1 = 0;                  // Initial duty cycle
+        LPC_PWM1->MCR = (1 << 1);           // Reset on MR0
+        LPC_PWM1->LER = (1 << 0) | (1 << 1);// Load MR0 and MR1
+        LPC_PWM1->PCR = (1 << 9);           // Enable PWM1.1 output
+        LPC_PWM1->TCR = (1 << 0) | (1 << 3);// Enable counter + PWM
+        }
 
-void ADC_Init(void) {
-    LPC_SC->PCONP |= (1 << 12);         // Power up ADC
-    LPC_PINCON->PINSEL1 |= (1 << 14);   // P0.23 as AD0.0
-    LPC_ADC->ADCR = (1 << 0) |          // Select channel 0
+        void ADC_Init(void) {
+        LPC_SC->PCONP |= (1 << 12);         // Power up ADC
+        LPC_PINCON->PINSEL1 |= (1 << 14);   // P0.23 as AD0.0
+        LPC_ADC->ADCR = (1 << 0) |          // Select channel 0
                     (4 << 8) |          // ADC clock div
                     (1 << 21);          // Enable ADC
-}
+    }
 
-uint16_t ADC_Read(void) {
+    uint16_t ADC_Read(void) {
     LPC_ADC->ADCR |= (1 << 24);         // Start conversion
     while (!(LPC_ADC->ADGDR & (1 << 31))); // Wait till done
     return (LPC_ADC->ADGDR >> 4) & 0xFFF;  // 12-bit result
-}
+    }
 
-int main(void) {
+    int main(void) 
+    {
     PWM_Init();
     ADC_Init();
 
-    while (1) {
+    while (1) 
+    {
         uint16_t adcVal = ADC_Read();   // Read potentiometer
         LPC_PWM1->MR1 = adcVal / 4;     // Scale 0–4095 → 0–1023
         LPC_PWM1->LER = (1 << 1);       // Update duty cycle
     }
-}
+    }
 
 
 
